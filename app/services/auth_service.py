@@ -46,3 +46,30 @@ def login_user(email: str, password: str):
             "status_code": 401,
             "message": "Invalid login credentials"
         }
+
+
+def verify_user_token(token: str):
+    """Validate a request JWT against Supabase and return its user."""
+    try:
+        # Pass the request token explicitly; this must not rely on the
+        # Supabase client's server-side session state.
+        response = supabase.auth.get_user(jwt=token)
+
+        if response is None or response.user is None:
+            return {
+                "success": False,
+                "status_code": 401,
+                "message": "Invalid or expired token"
+            }
+
+        return {
+            "success": True,
+            "user": response.user
+        }
+
+    except Exception:
+        return {
+            "success": False,
+            "status_code": 401,
+            "message": "Invalid or expired token"
+        }

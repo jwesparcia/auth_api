@@ -1,46 +1,46 @@
-from fastapi import APIRouter, Header, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from app.services.auth_service import verify_user_token
 
 router = APIRouter(
     prefix="/protected",
     tags=["Protected"]
 )
 
+security = HTTPBearer(auto_error=False)
+
 
 @router.get("/profile")
-def get_profile(authorization: str = Header(None)):
-
-    # Check if Authorization header exists
-    if not authorization:
+def get_profile(
+    credentials: HTTPAuthorizationCredentials | None = Depends(security)
+):
+    if not credentials or not credentials.credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={
-                "error": "Access token required"
-            }
+            detail={"error": "Access token required"}
         )
 
-    # Check Bearer format
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={
-                "error": "Access token required"
-            }
-        )
+    token = credentials.credentials.strip()
 
-    # Extract the token
-    token = authorization.replace("Bearer ", "", 1)
-
-    # Check if token is empty
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={
-                "error": "Access token required"
-            }
+            detail={"error": "Access token required"}
         )
 
-    # Stage 2: Token is extracted but NOT verified yet
+    # Verify token
+    result = verify_user_token(token)
+
+    if not result["success"]:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"error": "Invalid or expired token"}
+        )
+
+    user = result["user"]
+
     return {
-        "message": "Access granted to protected profile",
-        "token_received": True
+        "id": user.id,
+        "email": user.email,
+        "created_at": user.created_at
     }
