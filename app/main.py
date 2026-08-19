@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api.routes import router as auth_router
+from app.core.config import supabase
 
 app = FastAPI(
     title="Authentication API",
@@ -8,6 +9,11 @@ app = FastAPI(
 )
 
 app.include_router(auth_router)
+
+
+@app.on_event("startup")
+async def startup_event():
+    print("Server running and connected to Supabase")
 
 
 @app.get("/")
