@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import JSONResponse
 from app.services.auth_service import verify_user_token
 
 router = APIRouter(
@@ -32,9 +33,9 @@ def get_profile(
     result = verify_user_token(token)
 
     if not result["success"]:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"error": "Invalid or expired token"}
+            content={"error": "Invalid or expired token"}
         )
 
     user = result["user"]
