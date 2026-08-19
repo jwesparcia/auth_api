@@ -1,6 +1,9 @@
 from fastapi import FastAPI
+
 from app.api.routes import router as auth_router
-from app.core.config import supabase
+from app.api.public_routes import router as public_router
+from app.api.protected_routes import router as protected_router
+
 
 app = FastAPI(
     title="Authentication API",
@@ -8,7 +11,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
+
 app.include_router(auth_router)
+app.include_router(public_router)
+app.include_router(protected_router)
 
 
 @app.on_event("startup")
