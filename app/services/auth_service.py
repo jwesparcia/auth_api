@@ -73,3 +73,17 @@ def verify_user_token(token: str):
             "status_code": 401,
             "message": "Invalid or expired token"
         }
+
+
+def logout_user(token: str):
+    """Revoke the authenticated user's Supabase session."""
+    try:
+        # supabase-py exposes the token-aware sign-out operation on auth.admin.
+        supabase.auth.admin.sign_out(token)
+        return {"success": True}
+    except Exception:
+        return {
+            "success": False,
+            "status_code": 502,
+            "message": "Unable to log out"
+        }
