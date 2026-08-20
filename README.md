@@ -73,6 +73,17 @@ Authorization: Bearer <supabase-access-token>
 
 ## Swagger UI screenshot
 
-Open `/docs` locally to view the Authorize button, bearer lock icons, and the
-protected routes. A screenshot can be captured from that page after starting
-the server.
+The screenshots below show the validation response, an authorized Bearer
+token, and the protected Swagger routes with lock icons.
+
+### Missing input returns 400
+
+![Signup validation returning 400](docs/signup-validation-400.png)
+
+### Bearer authorization
+
+![Swagger Bearer authorization](docs/swagger-authorized.png)
+
+### Protected routes
+
+![Swagger protected routes with lock icons](docs/swagger-routes.png)

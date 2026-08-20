@@ -3,8 +3,10 @@ from fastapi import FastAPI
 from app.api.routes import router as auth_router
 from app.api.public_routes import router as public_router
 from app.api.protected_routes import router as protected_router
-
-
+from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.responses import JSONResponse
+from fastapi import Request
 app = FastAPI(
     title="Authentication API",
     description="API with Supabase Authentication",
@@ -27,3 +29,19 @@ def root():
     return {
         "message": "Authentication API is running"
     }
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError,
+):
+    if request.method == "POST" and request.url.path in {
+        "/auth/signup",
+        "/auth/login",
+    }:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Email and password are required"},
+        )
+
+    return await request_validation_exception_handler(request, exc)
